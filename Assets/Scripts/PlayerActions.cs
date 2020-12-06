@@ -2,37 +2,45 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerActions : MonoBehaviour
+namespace GameSpace
 {
-    public GameObject ball;
+    public class PlayerActions : MonoBehaviour
+{
+    public GameObject ballPrefab;
     public Transform cam;
-    public float ballDistance = 2f;
-    public float ballForce = 250f;
+    
     bool holdingBall = true;
-    Rigidbody ballRB;
+    GameObject ball;
     
     void Start()
     {
-        ballRB = ball.GetComponent<Rigidbody>();
-        ballRB.useGravity = false;
+        resetBall();
     }
-
+    
     void Update()
     {
         if(holdingBall == true){
             if(Input.GetMouseButtonDown(0)){
                 holdingBall = false;
-                ballRB.useGravity = true;
-                ballRB.AddForce(cam.forward * ballForce);
             }
         }
         
     }
+    
+    void resetBall(){
+        holdingBall = true;
+        ball = Instantiate(ballPrefab, Vector3.zero, Quaternion.identity);
+        ball.transform.SetParent(gameObject.transform, false);
+    }
 
     private void LateUpdate(){
         if(holdingBall == true){
-            ball.transform.position = cam.position + cam.forward * ballDistance;
-
+            float x = cam.position.x;
+            float y = cam.position.y - 6f;
+            float z = cam.position.z + 6f;
+            ball.transform.position = new Vector3(x, y, z);
         }
     }
+}
+
 }

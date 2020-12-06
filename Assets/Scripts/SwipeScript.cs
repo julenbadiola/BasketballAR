@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SwipeScript : MonoBehaviour {
+public class SwipeScript2 : MonoBehaviour {
 
 	Vector2 startPos, endPos, direction; // touch start position, touch end position, swipe direction
 	float touchTimeStart, touchTimeFinish, timeInterval; // to calculate swipe time to sontrol throw force in Z direction
@@ -14,15 +14,14 @@ public class SwipeScript : MonoBehaviour {
 	float throwForceInZ = 50f; // to control throw force in Z direction
 
 	Rigidbody rb;
-
+	
 	void Start()
 	{
 		rb = GetComponent<Rigidbody> ();
 	}
 
 	// Update is called once per frame
-	void Update () {
-
+	void Update () {		
 		// if you touch the screen
 		if (Input.touchCount > 0 && Input.GetTouch (0).phase == TouchPhase.Began) {
 
