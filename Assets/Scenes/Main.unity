@@ -511,6 +511,20 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &323629732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323629728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69e358f1be30942f0901f4248315285d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  throwForceInXandY: 1
+  throwForceInZ: 50
 --- !u!1 &441614518
 GameObject:
   m_ObjectHideFlags: 0
@@ -647,13 +661,14 @@ GameObject:
   - component: {fileID: 1121797740}
   - component: {fileID: 1121797741}
   - component: {fileID: 1121797742}
+  - component: {fileID: 1121797743}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1121797739
 Transform:
   m_ObjectHideFlags: 0
@@ -723,6 +738,22 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   jumpForce: 1
+--- !u!114 &1121797743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121797738}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fcf918e5dd93417882df6dc65fc81fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ball: {fileID: 323629728}
+  cam: {fileID: 1144071327}
+  ballDistance: 2
+  ballForce: 250
 --- !u!1 &1144071324
 GameObject:
   m_ObjectHideFlags: 0
