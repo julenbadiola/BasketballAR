@@ -11,28 +11,18 @@ public class DragAndShoot : MonoBehaviour
     private Rigidbody rb;
     private GameObject hoop;
     private Transform cam;
-    private bool isShoot;
-    private Vector3 initialPos;
     
+    private bool isShoot;
+    private float forceMultiplier;
+    private BallControl main;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        main = GameObject.Find("MAINSCR").GetComponent<BallControl>();
+        forceMultiplier = main.ballForce;
         hoop = GameObject.Find("basketball_hoop");
         cam = GameObject.Find("ARCamera").transform;
-        initialPos = transform.position;
-    }
-
-    IEnumerator wait(){
-        yield return new WaitForSeconds(3);
-        reset();
-    }
-
-    public void reset(){
-        Debug.Log("Resetting");
-        rb.useGravity = false;  
-        isShoot = false;
-        transform.position = initialPos;
-        
     }
 
     void Update(){
@@ -50,26 +40,18 @@ public class DragAndShoot : MonoBehaviour
         Shoot(mouseReleasePos-mousePressDownPos);
     }
 
-    private float forceMultiplier = 2;
     void Shoot(Vector3 Force)
     {
         if(isShoot)
             return;
         rb.useGravity = true;
-        
-        /*Debug.Log("X" + Force.x);
-        Debug.Log("Y" + Force.y);
-        Debug.Log("Z" + Force.z);
-        //rb.AddForce(new Vector3(Force.x,Force.y,Force.y) * forceMultiplier);
-        rb.AddForce(cam.forward * forceMultiplier, ForceMode.Force);*/
-
 
         Force.Normalize();
         Debug.Log("The direction is "+ Force);
-        rb.AddForce(Force * 1000);
-
+        rb.AddForce(Force * (forceMultiplier / 2));
+        rb.AddForce(cam.forward * forceMultiplier);
         isShoot = true;
-        StartCoroutine(wait());
+        main.throwedBall();
     }
     
 }

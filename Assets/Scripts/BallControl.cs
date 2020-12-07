@@ -5,32 +5,43 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class BallControl : MonoBehaviour
 {
-	public GameObject ball;
+    //public
+	public GameObject ballPrefab;
     public Transform cam;
     public float ballDistance = 10f;
     public float ballForce = 15000f;
-    bool holdingBall = true;
-    Rigidbody ballRB;
 
-    void Start(){
-        ballRB = ball.GetComponent<Rigidbody>();
-        ballRB.useGravity = false;
+    //Private
+    GameObject ball;
+    bool holdingBall = true;
+    
+    
+    public void initialize(){
+        Debug.Log("New ball");
+        ball = Instantiate(ballPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        holdingBall = true;
     }
 
-    void Update()
+    void Start(){
+        initialize();
+    }
+
+    public void throwedBall()
     {
-        if(holdingBall == true){
-            if(Input.GetMouseButtonDown(0)){
-                holdingBall = false;
-                ballRB.useGravity = true;
-                ballRB.AddForce(cam.forward * ballForce);
-            }
-        }
+        holdingBall = false;
+        StartCoroutine(waitAndDestroy());
+    }
+    IEnumerator waitAndDestroy(){
+        yield return new WaitForSeconds(3);
+        Debug.Log("RESETTING");
+        Destroy(ball);
+        initialize();
     }
 
     void LateUpdate(){
         if(holdingBall == true){
-            ball.transform.position = cam.position + cam.forward * ballDistance;
+            Vector3 pos = cam.position + (cam.forward * ballDistance) - new Vector3(0f, 5f, 0f);
+            ball.transform.position = pos;
         }
     }
 
