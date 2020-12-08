@@ -6,7 +6,7 @@ using Photon.Pun;
 using UnityEngine.UI;
 using TMPro;
 
-public class PlayerListing : MonoBehaviour
+public class PlayerListing : MonoBehaviourPunCallbacks
 {
     [SerializeField]
     private TMP_Text _text;
@@ -14,7 +14,27 @@ public class PlayerListing : MonoBehaviour
 
     public void SetPlayerInfo(Player player)
     {
-       Player = player;
-       _text.text = player.NickName;
+        Player = player;
+        SetPlayerText(player);
+    }
+
+    public override void OnPlayerPropertiesUpdate(Player target, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        base.OnPlayerPropertiesUpdate(target, changedProps);
+        if(target != null && target == Player)
+        {
+            if(changedProps.ContainsKey("RandomNumber")){
+                SetPlayerText(target);
+            }
+        }
+    }
+
+    private void SetPlayerText(Player player)
+    {
+        int result = -1;
+        if(player.CustomProperties.ContainsKey("RandomNumber")){
+            result = (int) player.CustomProperties["RandomNumber"];
+        }
+        _text.text = result.ToString() + ", " + player.NickName;
     }
 }
