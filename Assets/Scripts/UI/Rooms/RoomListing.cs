@@ -17,4 +17,8 @@ public class RoomListing : MonoBehaviour
         _text.text = roomInfo.MaxPlayers + ", " + roomInfo.Name;
         RoomInfo = roomInfo;
     }
+
+    public void OnClick_Button(){
+        PhotonNetwork.JoinRoom(RoomInfo.Name);
+    }
 }
