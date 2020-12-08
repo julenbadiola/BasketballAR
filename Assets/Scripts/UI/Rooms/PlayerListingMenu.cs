@@ -4,6 +4,7 @@ using UnityEngine;
 using Photon.Realtime;
 using Photon.Pun;
 using UnityEngine.UI;
+using TMPro;
 
 public class PlayerListingMenu : MonoBehaviourPunCallbacks
 {
@@ -11,13 +12,34 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
     private Transform _content;
     [SerializeField]
     private PlayerListing _playerListing;
+    [SerializeField]
+    private TMP_Text _readyUpText;
 
     private List<PlayerListing> _listings = new List<PlayerListing>();
     private RoomsCanvases _roomsCanvases;
+    private bool _ready = false;
 
     private void Awake()
     {
         GetCurrentRoomPlayers();
+    }
+
+    public override void OnEnable()
+    {
+        base.OnEnable();
+        SetReadyUp(false);
+    }
+
+    private void SetReadyUp(bool state)
+    {
+        _ready = state;
+        if(state)
+        {
+            _readyUpText.text = "Ready";
+        }else{
+            _readyUpText.text = "Not ready";
+        }
+        
     }
 
     public void FirstInitialize(RoomsCanvases canvases)
@@ -67,12 +89,50 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
         }
     }
 
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        _roomsCanvases.CurrentRoomCanvas.LeaveRoomMenu.OnClick_LeaveRoom();
+    }
+
     public void OnClick_StartGame(){
+        //Sólo el creador puede iniciar la partida
         if(PhotonNetwork.IsMasterClient)
         {
+            //Si alguno de los jugadores no está listo, no empieza
+            for (int i = 0; i < _listings.Count; i++)
+            {
+                if(_listings[i].Player != PhotonNetwork.LocalPlayer)
+                {
+                    if(!_listings[i].Ready)
+                    {
+                        return;
+                    }
+                }
+            }
+
             PhotonNetwork.CurrentRoom.IsOpen = false;
             PhotonNetwork.CurrentRoom.IsVisible = false;
             PhotonNetwork.LoadLevel(1);
+        }
+    }
+
+    public void OnClick_ReadyUp()
+    {
+        if(!PhotonNetwork.IsMasterClient)
+        {
+            SetReadyUp(!_ready);
+            base.photonView.RPC("RPC_ChangeReadyState", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer, _ready);
+            //Para evitar el tampering
+            //base.photonView.RpcSecure("RPC_ChangeReadyState", RpcTarget.MasterClient, true, PhotonNetwork.LocalPlayer, _ready);
+        }
+    }
+    [PunRPC]
+    private void RPC_ChangeReadyState(Player player, bool ready)
+    {
+        int index = _listings.FindIndex( x => x.Player == player);
+        if(index != -1)
+        {
+            _listings[index].Ready = ready;
         }
     }
 }
