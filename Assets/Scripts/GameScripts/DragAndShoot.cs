@@ -2,8 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using ExitGames.Client.Photon;
+using Photon.Realtime;
+using Photon.Pun;
+
 [RequireComponent(typeof(Rigidbody))]
-public class DragAndShoot : MonoBehaviour
+public class DragAndShoot : MonoBehaviourPun
 {
     private Vector3 mousePressDownPos;
     private Vector3 mouseReleasePos;
@@ -16,12 +20,17 @@ public class DragAndShoot : MonoBehaviour
     private float forceMultiplier;
     private BallControl main;
 
+    private eventcodes eventcodes;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        main = GameObject.Find("MAINSCR").GetComponent<BallControl>();
+        eventcodes = GameObject.Find("online").GetComponent<eventcodes>();
+        
+        main = GameObject.Find("main").GetComponent<BallControl>();
         forceMultiplier = main.ballForce;
-        hoop = GameObject.Find("basketball_hoop");
+        
+        hoop = GameObject.Find("ring");
         cam = GameObject.Find("ARCamera").transform;
     }
 
@@ -48,8 +57,24 @@ public class DragAndShoot : MonoBehaviour
 
         Force.Normalize();
         Debug.Log("The direction is "+ Force);
-        rb.AddForce(Force * (forceMultiplier / 2));
-        rb.AddForce(cam.forward * forceMultiplier);
+        
+        Vector3 force1 = Force * (forceMultiplier / 2);
+        Vector3 force2 = cam.forward * forceMultiplier;
+        rb.AddForce(force1);
+        rb.AddForce(force2);
+
+        object[] datas = new object[] {
+            force1, 
+            force2 
+        };
+
+        PhotonNetwork.RaiseEvent(
+            eventcodes.BALL_THROW_EVENT, 
+            datas, 
+            RaiseEventOptions.Default,
+            SendOptions.SendReliable
+        );
+
         isShoot = true;
         main.throwedBall();
     }
