@@ -9,33 +9,25 @@ using Photon.Pun;
 [RequireComponent(typeof(Rigidbody))]
 public class DragAndShoot : MonoBehaviourPun
 {
+    private BallControl main;
+    private eventcodes eventcodes;
+    private Transform cam;
+    private Rigidbody rb;
+    private BallPositionFixer posFixer;
+
+    //Variables for shooting
     private Vector3 mousePressDownPos;
     private Vector3 mouseReleasePos;
-
-    private Rigidbody rb;
-    private GameObject hoop;
-    private Transform cam;
-    
-    private bool isShoot;
-    private float forceMultiplier;
-    private BallControl main;
-
-    private eventcodes eventcodes;
+    [SerializeField]
+    private float forceMultiplier = 60000f;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         eventcodes = GameObject.Find("online").GetComponent<eventcodes>();
-        
         main = GameObject.Find("main").GetComponent<BallControl>();
-        forceMultiplier = main.ballForce;
-        
-        hoop = GameObject.Find("ring");
         cam = GameObject.Find("ARCamera").transform;
-    }
-
-    void Update(){
-        transform.LookAt(hoop.transform);
+        posFixer = gameObject.AddComponent<BallPositionFixer>();
     }
 
     private void OnMouseDown()
@@ -51,23 +43,23 @@ public class DragAndShoot : MonoBehaviourPun
 
     void Shoot(Vector3 Force)
     {
-        if(isShoot)
+        if(posFixer.IsShoot)
             return;
-        rb.useGravity = true;
 
+        //Set forces
         Force.Normalize();
-        Debug.Log("The direction is "+ Force);
-        
+        //Debug.Log("The direction is "+ Force);
         Vector3 force1 = Force * (forceMultiplier / 2);
         Vector3 force2 = cam.forward * forceMultiplier;
-        rb.AddForce(force1);
-        rb.AddForce(force2);
+        rb.useGravity = true;
+        rb.AddForce(force1 + force2);
 
+        //Send Data to server
         object[] datas = new object[] {
-            force1, 
-            force2 
+            PhotonNetwork.LocalPlayer,
+            cam.transform.position,
+            force1 + force2
         };
-
         PhotonNetwork.RaiseEvent(
             eventcodes.BALL_THROW_EVENT, 
             datas, 
@@ -75,8 +67,8 @@ public class DragAndShoot : MonoBehaviourPun
             SendOptions.SendReliable
         );
 
-        isShoot = true;
-        main.throwedBall();
+        posFixer.IsShoot = true;
+        StartCoroutine(main.resetBallAfterThrow());
     }
     
 }

@@ -7,8 +7,11 @@ using Photon.Pun;
 
 public class OnlineEvents : MonoBehaviourPun
 {
-    private eventcodes eventcodes;
+    [SerializeField]
+    private GameObject oponentBallPrefab;
 
+    private eventcodes eventcodes;
+    
     void Awake()
     {
         eventcodes = GameObject.Find("online").GetComponent<eventcodes>();
@@ -28,8 +31,21 @@ public class OnlineEvents : MonoBehaviourPun
     {
         if(obj.Code == eventcodes.BALL_THROW_EVENT)
         {
-            object[] datas = (object[]) obj.CustomData;
+            ReceivedOponentThrow((object[]) obj.CustomData);
         }
         Debug.Log("RECEIVEEEED");
+    }
+
+    private void ReceivedOponentThrow(object[] data){
+        Debug.Log("THROWER" + data[0]);
+        Vector3 throwPosition = (Vector3) data[1];
+        Vector3 force = (Vector3) data[2];
+
+        Debug.Log("THROW POS" + throwPosition);
+        Debug.Log("FORCE " + force);
+
+        GameObject ball = Instantiate(oponentBallPrefab, throwPosition, Quaternion.identity);
+        ball.name = data[0].ToString() + " OPONENT ball";
+        ball.GetComponent<Rigidbody>().AddForce(force);
     }
 }
