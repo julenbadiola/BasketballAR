@@ -33,19 +33,10 @@ public class OnlineEvents : MonoBehaviourPun
         {
             ReceivedOponentThrow((object[]) obj.CustomData);
         }
-        Debug.Log("RECEIVEEEED");
     }
 
     private void ReceivedOponentThrow(object[] data){
-        Debug.Log("THROWER" + data[0]);
-        Vector3 throwPosition = (Vector3) data[1];
-        Vector3 force = (Vector3) data[2];
-
-        Debug.Log("THROW POS" + throwPosition);
-        Debug.Log("FORCE " + force);
-
-        GameObject ball = Instantiate(oponentBallPrefab, throwPosition, Quaternion.identity);
-        ball.name = data[0].ToString() + " OPONENT ball";
-        ball.GetComponent<Rigidbody>().AddForce(force);
+        GameObject ball = Instantiate(oponentBallPrefab, Vector3.zero, Quaternion.identity);
+        ball.GetComponent<OponentBallScript>().SetShootInfo(data[0].ToString(), (Vector3) data[1], (Vector3) data[2]);
     }
 }

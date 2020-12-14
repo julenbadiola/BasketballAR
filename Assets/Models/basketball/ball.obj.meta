@@ -3,7 +3,12 @@ guid: 749994413df634685abf0b16d772b11f
 ModelImporter:
   serializedVersion: 19300
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 10487_basketball_V1_Mat
+    second: {fileID: 2100000, guid: b1980bddbeae34031a0258d9aabd600c, type: 2}
   materials:
     materialImportMode: 1
     materialName: 0

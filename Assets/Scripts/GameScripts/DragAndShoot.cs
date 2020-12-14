@@ -53,11 +53,12 @@ public class DragAndShoot : MonoBehaviourPun
         Vector3 force2 = cam.forward * forceMultiplier;
         rb.useGravity = true;
         rb.AddForce(force1 + force2);
+        posFixer.IsShoot = true;
 
         //Send Data to server
         object[] datas = new object[] {
             PhotonNetwork.LocalPlayer,
-            cam.transform.position,
+            transform.localPosition,
             force1 + force2
         };
         PhotonNetwork.RaiseEvent(
@@ -66,8 +67,7 @@ public class DragAndShoot : MonoBehaviourPun
             RaiseEventOptions.Default,
             SendOptions.SendReliable
         );
-
-        posFixer.IsShoot = true;
+        
         StartCoroutine(main.resetBallAfterThrow());
     }
     

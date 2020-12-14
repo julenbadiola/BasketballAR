@@ -5,7 +5,6 @@ using UnityEngine;
 public class BallPositionFixer : MonoBehaviour
 {
     private Transform cam;
-    public float ballDistance = 10f;
     private bool isShoot = false;
     public bool IsShoot {
         get {
@@ -29,7 +28,7 @@ public class BallPositionFixer : MonoBehaviour
     void LateUpdate(){
         //Update ball´s position regarding the camera
         if(!isShoot){
-            transform.position = cam.position + (cam.forward * ballDistance) - (cam.up * 5);
+            transform.position = cam.position + (cam.forward * 10f) - (cam.up * 5f);
             //transform.rotation = cam.rotation;
         }
     }
