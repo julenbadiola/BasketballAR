@@ -9,6 +9,10 @@ using TMPro;
 public class PlayerListingMenu : MonoBehaviourPunCallbacks
 {
     [SerializeField]
+    private GameObject readyButton;
+    [SerializeField]
+    private GameObject startButton;
+    [SerializeField]
     private Transform _content;
     [SerializeField]
     private PlayerListing _playerListing;
@@ -27,17 +31,35 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
     public override void OnEnable()
     {
         base.OnEnable();
+        if(!PhotonNetwork.IsMasterClient)
+        {
+            startButton.SetActive(false);
+            readyButton.SetActive(true);
+        }else{
+            readyButton.SetActive(false);
+            StartCoroutine(checkPlayers());
+        }
         SetReadyUp(false);
     }
-
+    IEnumerator checkPlayers(){
+        while (true)
+        {
+            bool res = checkReadyPlayers();
+            print("CHECKING " + res);
+            startButton.GetComponent<Button>().interactable = res;
+            yield return new WaitForSeconds(3);
+        }
+    }
     private void SetReadyUp(bool state)
     {
         _ready = state;
         if(state)
         {
-            _readyUpText.text = "Ready";
+            _readyUpText.text = "¡Estoy listo!";
+            _readyUpText.color = Color.green;
         }else{
-            _readyUpText.text = "Not ready";
+            _readyUpText.text = "No estoy listo";
+            _readyUpText.color = Color.red;
         }
         
     }
@@ -93,26 +115,30 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
     {
         _roomsCanvases.CurrentRoomCanvas.LeaveRoomMenu.OnClick_LeaveRoom();
     }
-
-    public void OnClick_StartGame(){
-        //Sólo el creador puede iniciar la partida
-        if(PhotonNetwork.IsMasterClient)
-        {
-            //Si alguno de los jugadores no está listo, no empieza
-            for (int i = 0; i < _listings.Count; i++)
+    public bool checkReadyPlayers(){
+        bool allReady = true;
+        for (int i = 0; i < _listings.Count; i++)
             {
                 if(_listings[i].Player != PhotonNetwork.LocalPlayer)
                 {
                     if(!_listings[i].Ready)
                     {
-                        return;
+                        allReady = false;
                     }
                 }
             }
+        return allReady;
+    }
 
-            PhotonNetwork.CurrentRoom.IsOpen = false;
-            PhotonNetwork.CurrentRoom.IsVisible = false;
-            PhotonNetwork.LoadLevel(1);
+    public void OnClick_StartGame(){
+        //Sólo el creador puede iniciar la partida
+        if(PhotonNetwork.IsMasterClient)
+        {
+            if(checkReadyPlayers()){
+                PhotonNetwork.CurrentRoom.IsOpen = false;
+                PhotonNetwork.CurrentRoom.IsVisible = false;
+                PhotonNetwork.LoadLevel(1);
+            }
         }
     }
 
