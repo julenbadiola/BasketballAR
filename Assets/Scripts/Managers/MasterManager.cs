@@ -13,6 +13,11 @@ public class MasterManager : SingletonScriptableObject<MasterManager>
         }
     }
 
+    //Online events
+    public static byte BALL_THROW_EVENT = 0;
+    public static byte SCORE_UPDATE = 1;
+    public static byte SCORE_NORMALIZATION = 2;
+
     private static List<Color> colorList = new List<Color>()
     {
         Color.red,

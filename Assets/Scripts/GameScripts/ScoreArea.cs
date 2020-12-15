@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ExitGames.Client.Photon;
 using Photon.Realtime;
 using Photon.Pun;
 
@@ -18,12 +19,14 @@ public class ScoreArea : MonoBehaviour
         if(coll.CompareTag("Ball")){
             Debug.Log("CANASTA");
             winEffect.Play();
+
+            //Send I scored!
+            PhotonNetwork.RaiseEvent(
+                MasterManager.SCORE_UPDATE, 
+                PhotonNetwork.LocalPlayer.NickName, 
+                RaiseEventOptions.Default,
+                SendOptions.SendReliable
+            );
         }
-        /*
-        else if(coll.CompareTag("OponentBall"))
-        {
-            Debug.Log("CANASTA ADVERSARIO");
-            winEffect.startColor = new Color(1, 0, 1, .5f);
-        }*/
     }
 }

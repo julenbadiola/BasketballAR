@@ -10,7 +10,6 @@ using Photon.Pun;
 public class DragAndShoot : MonoBehaviourPun
 {
     private BallControl main;
-    private eventcodes eventcodes;
     private Transform cam;
     private Rigidbody rb;
     private BallPositionFixer posFixer;
@@ -24,7 +23,6 @@ public class DragAndShoot : MonoBehaviourPun
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        eventcodes = GameObject.Find("online").GetComponent<eventcodes>();
         main = GameObject.Find("main").GetComponent<BallControl>();
         cam = GameObject.Find("ARCamera").transform;
         posFixer = gameObject.AddComponent<BallPositionFixer>();
@@ -62,7 +60,7 @@ public class DragAndShoot : MonoBehaviourPun
             force1 + force2
         };
         PhotonNetwork.RaiseEvent(
-            eventcodes.BALL_THROW_EVENT, 
+            MasterManager.BALL_THROW_EVENT, 
             datas, 
             RaiseEventOptions.Default,
             SendOptions.SendReliable

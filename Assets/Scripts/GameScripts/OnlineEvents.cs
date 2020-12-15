@@ -10,13 +10,6 @@ public class OnlineEvents : MonoBehaviourPun
     [SerializeField]
     private GameObject oponentBallPrefab;
 
-    private eventcodes eventcodes;
-    
-    void Awake()
-    {
-        eventcodes = GameObject.Find("online").GetComponent<eventcodes>();
-    }
-
     private void OnEnable()
     {
         PhotonNetwork.NetworkingClient.EventReceived += NetworkingClient_EventReceived;
@@ -29,7 +22,7 @@ public class OnlineEvents : MonoBehaviourPun
 
     private void NetworkingClient_EventReceived(EventData obj)
     {
-        if(obj.Code == eventcodes.BALL_THROW_EVENT)
+        if(obj.Code == MasterManager.BALL_THROW_EVENT)
         {
             ReceivedOponentThrow((object[]) obj.CustomData);
         }
