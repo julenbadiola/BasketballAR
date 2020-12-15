@@ -7,26 +7,25 @@ using Photon.Pun;
 
 public class ScoreArea : MonoBehaviour
 {
-    private Color localPlayerColor;
     public ParticleSystem winEffect;
 
+    private string _localNickname;
+    private Color _localPlayerColor;
+    private ScoreEvents _scoreboard;
+
     void Start(){
+        _localNickname = PhotonNetwork.LocalPlayer.NickName;
         if(PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("Color")){
             int res = (int) PhotonNetwork.LocalPlayer.CustomProperties["Color"];
-            localPlayerColor = MasterManager.getColorByIndex(res);
+            _localPlayerColor = MasterManager.getColorByIndex(res);
         }
+        _scoreboard = GameObject.Find("online").GetComponent<ScoreEvents>();
     }
+    
     private void OnTriggerEnter(Collider coll){
         if(coll.CompareTag("Ball")){            
-            setWinEffect(localPlayerColor);
-
-            //Send I scored!
-            PhotonNetwork.RaiseEvent(
-                MasterManager.SCORE_UPDATE, 
-                PhotonNetwork.LocalPlayer.NickName, 
-                RaiseEventOptions.Default,
-                SendOptions.SendReliable
-            );
+            setWinEffect(_localPlayerColor);
+            _scoreboard.AddScore(_localNickname);
         }
 
         if(coll.CompareTag("OponentBall")){

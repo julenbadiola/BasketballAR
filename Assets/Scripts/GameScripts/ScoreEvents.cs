@@ -35,29 +35,48 @@ public class ScoreEvents : MonoBehaviourPun
         PhotonNetwork.NetworkingClient.EventReceived -= NetworkingClient_EventReceived;
     }
 
+    public void AddScore(string nickname)
+    {
+        if(isMaster)
+        {
+            AddScoreMaster(nickname);
+        }
+        else
+        {
+            //Send I scored to master
+            PhotonNetwork.RaiseEvent(
+                MasterManager.SCORE_UPDATE, 
+                PhotonNetwork.LocalPlayer.NickName, 
+                RaiseEventOptions.Default,
+                SendOptions.SendReliable
+            );
+        }
+    }
+    private void AddScoreMaster(string nickname)
+    {
+        //Get his score and update it
+        int score = _scoreBoard[nickname] + 1;
+        _scoreBoard[nickname] = score;
+
+        //Update the score panel
+        ScorePanelUpdate(_scoreBoard);
+                
+        //Send scores to all players
+        PhotonNetwork.RaiseEvent(
+            MasterManager.SCORE_NORMALIZATION, 
+            _scoreBoard, 
+            RaiseEventOptions.Default,
+            SendOptions.SendReliable
+        );
+    }
     private void NetworkingClient_EventReceived(EventData obj)
     {
         
         if(obj.Code == MasterManager.SCORE_UPDATE)
         {
             if(isMaster){
-                //Get nickname of thrower
-                string nickname = (string) obj.CustomData;
-
-                //Get his score and update it
-                int score = _scoreBoard[nickname] + 1;
-                _scoreBoard[nickname] = score;
-
-                //Update the score panel
-                ScorePanelUpdate(_scoreBoard);
-                
-                //Send scores to all players
-                PhotonNetwork.RaiseEvent(
-                    MasterManager.SCORE_NORMALIZATION, 
-                    _scoreBoard, 
-                    RaiseEventOptions.Default,
-                    SendOptions.SendReliable
-                );
+                //Add score to the nickname of thrower
+                AddScoreMaster((string) obj.CustomData);
             }
         }
 

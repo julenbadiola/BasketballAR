@@ -7,10 +7,12 @@ using Photon.Pun;
 public class OponentBallScript : MonoBehaviour
 {
     public Color color;
-    
+    private Rigidbody rb;
+
     void Start()
     {
         //Destroy after 3 seconds
+        rb = GetComponent<Rigidbody>();
         Destroy(gameObject, 3.0f);
     }
 
@@ -26,7 +28,8 @@ public class OponentBallScript : MonoBehaviour
         //Set ball position
         transform.localPosition = position;
         //Set ball force
-        gameObject.GetComponent<Rigidbody>().AddForce(force);
+        rb.useGravity = true;
+        rb.AddForce(force);
     }
 
 }
