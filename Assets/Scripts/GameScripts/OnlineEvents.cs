@@ -24,22 +24,24 @@ public class OnlineEvents : MonoBehaviourPun
 
     private void NetworkingClient_EventReceived(EventData obj)
     {
+        Player player = PhotonNetwork.CurrentRoom.GetPlayer(obj.Sender);
+
         if(obj.Code == MasterManager.BALL_THROW_EVENT)
         {
-            ReceivedOponentThrow((object[]) obj.CustomData);
+            ReceivedOponentThrow(player, (object[]) obj.CustomData);
         }
     }
 
-    private void ReceivedOponentThrow(object[] data){
+    private void ReceivedOponentThrow(Player player, object[] data){
         //Instantiate as a child of ImageTarget object
-        GameObject ball = Instantiate(oponentBallPrefab, Vector3.zero, Quaternion.identity, imageTarget);
+        GameObject oponentBall = Instantiate(oponentBallPrefab, Vector3.zero, Quaternion.identity, imageTarget);
 
         //Get data and set shoot info
-        ball.GetComponent<OponentBallScript>().SetShootInfo(
-            (Player) data[0], 
-            (Quaternion) data[1], 
-            (Vector3) data[2], 
-            (Vector3) data[3]
+        oponentBall.GetComponent<OponentBallScript>().SetShootInfo(
+            player,
+            (Quaternion) data[0], 
+            (Vector3) data[1], 
+            (Vector3) data[2]
         );
     }
 }

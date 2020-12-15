@@ -13,7 +13,7 @@ public class BallPositionFixer : MonoBehaviour
         set {
             isShoot = value;
         }
-  }
+    }
 
     void Start()
     {
@@ -29,7 +29,6 @@ public class BallPositionFixer : MonoBehaviour
         //Update ball´s position regarding the camera
         if(!isShoot){
             transform.position = cam.position + (cam.forward * 10f) - (cam.up * 5f);
-            //transform.rotation = cam.rotation;
         }
     }
 

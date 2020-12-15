@@ -41,24 +41,25 @@ public class DragAndShoot : MonoBehaviourPun
 
     void Shoot(Vector3 Force)
     {
+        //If is already shoot, don´t shoot again
         if(posFixer.IsShoot)
             return;
 
-        //Set forces
         Force.Normalize();
-        //Debug.Log("The direction is "+ Force);
-        Vector3 force1 = Force * (forceMultiplier / 2);
-        Vector3 force2 = cam.forward * forceMultiplier;
+        
+        Vector3 force = Force * (forceMultiplier / 2) + (cam.forward * forceMultiplier);
         rb.useGravity = true;
-        rb.AddForce(force1 + force2);
-        posFixer.IsShoot = true;
+        rb.AddForce(force);
 
-        //Send Data to server
+        //Do not fix position in fron of camera anymore
+        posFixer.IsShoot = true;
+        
+        //Send data force, position, rotation to other players
+        Vector3 forceToSend = transform.parent.InverseTransformDirection(force);
         object[] datas = new object[] {
-            PhotonNetwork.LocalPlayer,
             transform.localRotation,
             transform.localPosition,
-            force1 + force2
+            forceToSend
         };
         PhotonNetwork.RaiseEvent(
             MasterManager.BALL_THROW_EVENT, 
