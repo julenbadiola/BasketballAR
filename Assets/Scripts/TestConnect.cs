@@ -6,6 +6,10 @@ using Photon.Realtime;
 
 public class TestConnect : MonoBehaviourPunCallbacks
 {
+    [SerializeField]
+    private GameObject _createorjoincanvas;
+    [SerializeField]
+    private GameObject _maincanvas;
     void Start()
     {
         print("Connecting to server.");
@@ -33,5 +37,7 @@ public class TestConnect : MonoBehaviourPunCallbacks
 
     public override void OnJoinedLobby(){
         print("Connected to lobby.");
+        _createorjoincanvas.SetActive(true);
+        _maincanvas.SetActive(false);
     }
 }
