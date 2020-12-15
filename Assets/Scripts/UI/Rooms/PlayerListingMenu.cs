@@ -50,6 +50,7 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
             yield return new WaitForSeconds(3);
         }
     }
+
     private void SetReadyUp(bool state)
     {
         _ready = state;
@@ -144,13 +145,21 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
 
     public void OnClick_ReadyUp()
     {
-        if(!PhotonNetwork.IsMasterClient)
-        {
-            SetReadyUp(!_ready);
-            base.photonView.RPC("RPC_ChangeReadyState", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer, _ready);
-            //Para evitar el tampering
-            //base.photonView.RpcSecure("RPC_ChangeReadyState", RpcTarget.MasterClient, true, PhotonNetwork.LocalPlayer, _ready);
+        if(PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("Color")){
+            int res = (int) PhotonNetwork.LocalPlayer.CustomProperties["Color"];
+            if (MasterManager.isColorIndexValid(res)){
+                
+                if(!PhotonNetwork.IsMasterClient)
+                {
+                    SetReadyUp(!_ready);
+                    base.photonView.RPC("RPC_ChangeReadyState", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer, _ready);
+                    //Para evitar el tampering
+                    //base.photonView.RpcSecure("RPC_ChangeReadyState", RpcTarget.MasterClient, true, PhotonNetwork.LocalPlayer, _ready);
+                }
+
+            }
         }
+        
     }
     [PunRPC]
     private void RPC_ChangeReadyState(Player player, bool ready)
