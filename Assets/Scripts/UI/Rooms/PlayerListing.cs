@@ -10,6 +10,8 @@ public class PlayerListing : MonoBehaviourPunCallbacks
 {
     [SerializeField]
     private TMP_Text _text;
+    [SerializeField]
+    private Image _color;
     public Player Player {get; private set;}
     public bool Ready = false;
 
@@ -24,7 +26,7 @@ public class PlayerListing : MonoBehaviourPunCallbacks
         base.OnPlayerPropertiesUpdate(target, changedProps);
         if(target != null && target == Player)
         {
-            if(changedProps.ContainsKey("RandomNumber")){
+            if(changedProps.ContainsKey("Color")){
                 SetPlayerText(target);
             }
         }
@@ -33,13 +35,15 @@ public class PlayerListing : MonoBehaviourPunCallbacks
     private void SetPlayerText(Player player)
     {
         int result = -1;
-        if(player.CustomProperties.ContainsKey("RandomNumber")){
-            result = (int) player.CustomProperties["RandomNumber"];
+        //Buscar color que nadie tenga
+        if(player.CustomProperties.ContainsKey("Color")){
+            result = (int) player.CustomProperties["Color"];
         }
-        string playerInfoText = result.ToString() + ", " + player.NickName;
+        string playerInfoText = player.NickName;
         if(player == PhotonNetwork.LocalPlayer){
             playerInfoText += " (you)";
         }
+        _color.color = MasterManager.getColorByIndex(result);
         _text.text = playerInfoText;
     }
 }

@@ -10,7 +10,7 @@ public class GameSettings : SingletonScriptableObject<GameSettings>
     public string GameVersion {get {return _gameVersion; } }
 
     [SerializeField]
-    private string _nickName = "Punfish";
+    private string _nickName = "Hugo";
     public string NickName {
         get 
         {

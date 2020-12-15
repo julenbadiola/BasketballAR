@@ -11,20 +11,19 @@ public class RandomCustomPropertyGenerator : MonoBehaviour
     private TMP_Text _text; 
 
     private ExitGames.Client.Photon.Hashtable _myCustomProperties = new ExitGames.Client.Photon.Hashtable();
-    
-    private void SetCustomNumber()
+
+    private void SetCustomColor()
     {
-        System.Random rnd = new System.Random();
-        int result = rnd.Next(0, 99);
+        int result = MasterManager.getRandomColorIndex();
         _text.text = result.ToString();
 
-        _myCustomProperties["RandomNumber"] = result;
+        _myCustomProperties["Color"] = result;
         PhotonNetwork.SetPlayerCustomProperties(_myCustomProperties);
         //PhotonNetwork.LocalPlayer.CustomProperties = _myCustomProperties;
     }
 
     public void OnClick_Button()
     {
-        SetCustomNumber();
+        SetCustomColor();
     }
 }
