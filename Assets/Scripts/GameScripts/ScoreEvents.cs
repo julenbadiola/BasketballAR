@@ -70,13 +70,8 @@ public class ScoreEvents : MonoBehaviourPun
     }
 
     private void ScorePanelUpdate(Dictionary<string, int> scores){
-        Debug.Log(scores);
-        
         foreach (KeyValuePair<string, int> row in scores)
         {   
-            Debug.Log(row.Key);
-            Debug.Log(row.Value);
-
             _listings[row.Key].SetScore(row.Value);
         }
     }

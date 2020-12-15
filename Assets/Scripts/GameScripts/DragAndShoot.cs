@@ -56,6 +56,7 @@ public class DragAndShoot : MonoBehaviourPun
         //Send Data to server
         object[] datas = new object[] {
             PhotonNetwork.LocalPlayer,
+            transform.localRotation,
             transform.localPosition,
             force1 + force2
         };

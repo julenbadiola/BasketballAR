@@ -9,6 +9,8 @@ public class OnlineEvents : MonoBehaviourPun
 {
     [SerializeField]
     private GameObject oponentBallPrefab;
+    [SerializeField]
+    private Transform imageTarget;
 
     private void OnEnable()
     {
@@ -29,7 +31,15 @@ public class OnlineEvents : MonoBehaviourPun
     }
 
     private void ReceivedOponentThrow(object[] data){
-        GameObject ball = Instantiate(oponentBallPrefab, Vector3.zero, Quaternion.identity);
-        ball.GetComponent<OponentBallScript>().SetShootInfo(data[0].ToString(), (Vector3) data[1], (Vector3) data[2]);
+        //Instantiate as a child of ImageTarget object
+        GameObject ball = Instantiate(oponentBallPrefab, Vector3.zero, Quaternion.identity, imageTarget);
+
+        //Get data and set shoot info
+        ball.GetComponent<OponentBallScript>().SetShootInfo(
+            (Player) data[0], 
+            (Quaternion) data[1], 
+            (Vector3) data[2], 
+            (Vector3) data[3]
+        );
     }
 }
