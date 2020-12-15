@@ -41,7 +41,7 @@ public class PlayerListing : MonoBehaviourPunCallbacks
         }
         string playerInfoText = player.NickName;
         if(player == PhotonNetwork.LocalPlayer){
-            playerInfoText += " (you)";
+            playerInfoText += " (tú)";
         }
         _color.color = MasterManager.getColorByIndex(result);
         _text.text = playerInfoText;

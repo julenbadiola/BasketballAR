@@ -24,11 +24,7 @@ public class MasterManager : SingletonScriptableObject<MasterManager>
         Color.green,
         Color.yellow,
         Color.magenta,
-        new Color(255F, 0F, 255F),
-        new Color(0F, 255F, 255F),
-        new Color(255F, 255F, 0F),
-        new Color(128F, 0F, 128F),
-        new Color(128F, 0F, 0F)
+        Color.cyan
     };
 
     public static bool isColorIndexValid(int index){
@@ -57,5 +53,17 @@ public class MasterManager : SingletonScriptableObject<MasterManager>
     public static int getRandomColorIndex()
     {
         return Random.Range(0, colorList.Count);
+    }
+
+    public static int getNextColorIndex(int index)
+    {
+        if( index == colorList.Count - 1 )
+        {
+            return 0;
+        }
+        else
+        {
+            return index + 1;
+        }
     }
 }

@@ -41,11 +41,12 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
         }
         SetReadyUp(false);
     }
+    
     IEnumerator checkPlayers(){
         while (true)
         {
             bool res = checkReadyPlayers();
-            print("CHECKING " + res);
+            //print("CHECKING " + res);
             startButton.GetComponent<Button>().interactable = res;
             yield return new WaitForSeconds(3);
         }
