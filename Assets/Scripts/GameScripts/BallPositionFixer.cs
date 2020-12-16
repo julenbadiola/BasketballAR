@@ -18,7 +18,6 @@ public class BallPositionFixer : MonoBehaviour
     void Start()
     {
         cam = GameObject.Find("ARCamera").transform;
-        transform.SetParent (GameObject.Find("ImageTarget").transform, true);
     }
 
     void Update(){

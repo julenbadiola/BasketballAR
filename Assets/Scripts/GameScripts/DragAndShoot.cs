@@ -7,7 +7,7 @@ using Photon.Realtime;
 using Photon.Pun;
 
 [RequireComponent(typeof(Rigidbody))]
-public class DragAndShoot : MonoBehaviourPun
+public class DragAndShoot : MonoBehaviour
 {
     private BallControl main;
     private Transform cam;
@@ -19,13 +19,41 @@ public class DragAndShoot : MonoBehaviourPun
     private Vector3 mouseReleasePos;
     [SerializeField]
     private float forceMultiplier = 60000f;
+    public Color color;
+    private PhotonView PV;
 
     void Start()
     {
+        transform.SetParent (GameObject.Find("ImageTarget").transform, true);
+        
         rb = GetComponent<Rigidbody>();
+        ResetBall();
+        
+        PV = GetComponent<PhotonView>();
+        color = MasterManager.GetColorOfPlayer(PV.Owner);
+
+        if(PV.IsMine)
+        {
+            MyBall();
+        }
+        else{
+            OponentBall();
+        }
+    }
+    private void OponentBall(){
+        Debug.Log("OPONENT BALL");
+        transform.gameObject.tag = "OponentBall";
+        
+    }
+    private void MyBall()
+    {
+        Debug.Log("MY BALL");
         main = GameObject.Find("main").GetComponent<BallControl>();
         cam = GameObject.Find("ARCamera").transform;
+
+        //If is my ball, put in front of camera
         posFixer = gameObject.AddComponent<BallPositionFixer>();
+        transform.gameObject.tag = "Ball";        
     }
 
     private void OnMouseDown()
@@ -35,40 +63,47 @@ public class DragAndShoot : MonoBehaviourPun
 
     private void OnMouseUp()
     {
+        Debug.Log("UP");
         mouseReleasePos = Input.mousePosition;
         Shoot(mouseReleasePos-mousePressDownPos);
     }
 
     void Shoot(Vector3 Force)
     {
-        //If is already shoot, don´t shoot again
-        if(posFixer.IsShoot)
-            return;
+        //If my ball, let shoot it
+        if(PV.IsMine){
+            //GameObject.Find("ScoreCanvas").GetComponent<ScoreEvents>().AddScore(PhotonNetwork.LocalPlayer.NickName);
+            //If is already shoot, don´t shoot again
+            if(posFixer.IsShoot)
+                return;
 
-        Force.Normalize();
-        
-        Vector3 force = Force * (forceMultiplier / 2) + (cam.forward * forceMultiplier);
-        rb.useGravity = true;
-        rb.AddForce(force);
+            Force.Normalize();
+            
+            Vector3 force = Force * (forceMultiplier / 2) + (cam.forward * forceMultiplier);
+            rb.useGravity = true;
+            rb.AddForce(force);
 
-        //Do not fix position in fron of camera anymore
-        posFixer.IsShoot = true;
-        
-        //Send data force, position, rotation to other players
-        Vector3 forceToSend = transform.parent.InverseTransformDirection(force);
-        object[] datas = new object[] {
-            transform.localRotation,
-            transform.localPosition,
-            forceToSend
-        };
-        PhotonNetwork.RaiseEvent(
-            MasterManager.BALL_THROW_EVENT, 
-            datas, 
-            RaiseEventOptions.Default,
-            SendOptions.SendReliable
-        );
-        
-        StartCoroutine(main.resetBallAfterThrow());
+            //Do not fix position in fron of camera anymore
+            posFixer.IsShoot = true;
+
+            //Reset ball in 1.5 seconds
+            StartCoroutine(resetBallAfterThrow());
+        }
+
+    }
+
+    private void ResetBall(){
+        rb.useGravity = false;
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero; 
+    }
+
+    private IEnumerator resetBallAfterThrow()
+    {
+        //Wait 3 seconds (1.5 bc timeScale = 2) after throw and create new ball
+        yield return new WaitForSeconds(3);
+        ResetBall();
+        posFixer.IsShoot = false;
     }
     
 }

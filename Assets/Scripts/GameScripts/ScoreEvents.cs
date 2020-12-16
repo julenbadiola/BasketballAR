@@ -16,7 +16,8 @@ public class ScoreEvents : MonoBehaviourPun
     private bool isMaster;
     private Dictionary<string, ScoreListing> _listings = new Dictionary<string, ScoreListing>();
     private Dictionary<string, int> _scoreBoard = new Dictionary<string, int>();
-    
+    [SerializeField]
+    private ScoreArea _scoreArea;
     void Start(){
         isMaster = PhotonNetwork.IsMasterClient;
         foreach (KeyValuePair<int, Photon.Realtime.Player> row in PhotonNetwork.CurrentRoom.Players)
@@ -78,6 +79,9 @@ public class ScoreEvents : MonoBehaviourPun
                 //Add score to the nickname of thrower
                 AddScoreMaster((string) obj.CustomData);
             }
+            Player sender = PhotonNetwork.CurrentRoom.GetPlayer(obj.Sender);
+            Color color = MasterManager.GetColorOfPlayer(sender);
+            _scoreArea.playWinEffect(color);
         }
 
         if(obj.Code == MasterManager.SCORE_NORMALIZATION)

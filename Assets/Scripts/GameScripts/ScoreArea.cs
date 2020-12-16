@@ -4,7 +4,7 @@ using UnityEngine;
 using ExitGames.Client.Photon;
 using Photon.Realtime;
 using Photon.Pun;
-
+using TMPro;
 public class ScoreArea : MonoBehaviour
 {
     public ParticleSystem winEffect;
@@ -12,29 +12,31 @@ public class ScoreArea : MonoBehaviour
     private string _localNickname;
     private Color _localPlayerColor;
     private ScoreEvents _scoreboard;
-
+    [SerializeField]
+    private TextMeshProUGUI alert;
     void Start(){
         _localNickname = PhotonNetwork.LocalPlayer.NickName;
-        if(PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("Color")){
-            int res = (int) PhotonNetwork.LocalPlayer.CustomProperties["Color"];
-            _localPlayerColor = MasterManager.getColorByIndex(res);
-        }
-        _scoreboard = GameObject.Find("online").GetComponent<ScoreEvents>();
+        _localPlayerColor = MasterManager.GetColorOfPlayer(PhotonNetwork.LocalPlayer);
+        _scoreboard = GameObject.Find("ScoreCanvas").GetComponent<ScoreEvents>();
     }
     
     private void OnTriggerEnter(Collider coll){
-        if(coll.CompareTag("Ball")){            
-            setWinEffect(_localPlayerColor);
+        //If the ball scored owner = LocalPlayer => send "I scored"
+        if(coll.CompareTag("Ball"))
+        {
+            //StartCoroutine(ShowAlert());
             _scoreboard.AddScore(_localNickname);
-        }
-
-        if(coll.CompareTag("OponentBall")){
-            Color color = coll.gameObject.GetComponent<OponentBallScript>().color;
-            setWinEffect(color);
+            playWinEffect(coll.gameObject.GetComponent<DragAndShoot>().color);
         }
     }
 
-    private void setWinEffect(Color color)
+    IEnumerator ShowAlert(){
+        alert.gameObject.SetActive(true);
+        yield return new WaitForSeconds(2f);
+        alert.gameObject.SetActive(false);
+    }
+
+    public void playWinEffect(Color color)
     {
         winEffect.Stop();
         winEffect.startColor = color;

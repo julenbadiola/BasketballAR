@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ExitGames.Client.Photon;
+using Photon.Realtime;
+using Photon.Pun;
 
 [RequireComponent(typeof(Rigidbody))]
 public class BallControl : MonoBehaviour
@@ -13,19 +16,12 @@ public class BallControl : MonoBehaviour
 
     public void initialize()
     {
-        ball = Instantiate(ballPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        ball = PhotonNetwork.Instantiate("Temp/ballPrefab", new Vector3(0, 0, 0), Quaternion.identity);
+        ball.name = PhotonNetwork.LocalPlayer.NickName + "Ball";
     }
 
     void Start()
     {
-        initialize();
-    }
-
-    public IEnumerator resetBallAfterThrow()
-    {
-        //Wait 3 seconds (1.5 bc timeScale = 2) after throw and create new ball
-        yield return new WaitForSeconds(3);
-        Destroy(ball);
         initialize();
     }
 

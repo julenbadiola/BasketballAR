@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using Photon.Pun;
+using ExitGames.Client.Photon;
+using Photon.Realtime;
+
 [CreateAssetMenu(menuName = "Singletons/MasterManager")]
 public class MasterManager : SingletonScriptableObject<MasterManager>
 {
@@ -27,18 +31,37 @@ public class MasterManager : SingletonScriptableObject<MasterManager>
         Color.cyan
     };
 
-    public static bool isColorIndexValid(int index){
-        if(index > -1 && index < colorList.Count){
+    public static Color GetColorOfPlayer(Player player)
+    {
+        if(player.CustomProperties.ContainsKey("Color")){
+            int colorIndex = (int) PhotonNetwork.LocalPlayer.CustomProperties["Color"];
+            return MasterManager.getColorByIndex(colorIndex);
+        }
+        else
+        {
+            return Color.white;
+        }
+    }
+
+    public static bool isColorIndexValid(int index)
+    {
+        if(index > -1 && index < colorList.Count)
+        {
             return true;
-        }else{
+        }
+        else
+        {
             return false;
         }
     }
     public static Color getColorByIndex(int index)
     {
-        if(isColorIndexValid(index)){
+        if(isColorIndexValid(index))
+        {
             return colorList[index];
-        }else{
+        }
+        else
+        {
             return Color.white;
         }
         
