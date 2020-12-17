@@ -39,7 +39,7 @@ public class OnlineEvents : MonoBehaviourPun
     {
         if(isMaster)
         {
-            _scoreMethods.AddScore(PhotonNetwork.LocalPlayer.NickName);
+            _scoreMethods.AddScore(PhotonNetwork.LocalPlayer.ActorNumber);
         }
         else
         {
@@ -70,8 +70,8 @@ public class OnlineEvents : MonoBehaviourPun
         {
             if(isMaster)
             {
-                //Add score to the nickname of thrower
-                _scoreMethods.AddScore((string) obj.CustomData);
+                //Add score to the id of thrower
+                _scoreMethods.AddScore((int) obj.CustomData);
             }
             
             Player sender = PhotonNetwork.CurrentRoom.GetPlayer(obj.Sender);
@@ -84,7 +84,7 @@ public class OnlineEvents : MonoBehaviourPun
         {   
             if(!isMaster)
             {
-                _scoreMethods.ScorePanelUpdate((Dictionary<string, int>) obj.CustomData);
+                _scoreMethods.ScorePanelUpdate((Dictionary<int, int>) obj.CustomData);
             }
         }
 
@@ -93,9 +93,11 @@ public class OnlineEvents : MonoBehaviourPun
             if(!isMaster)
             {
                 Debug.Log("SCORE FINALIZATION RECEIVED");
-                //MasterManager.SetFinalScoreScene((Dictionary<string, Vector2>) obj.CustomData);
+                MasterManager.sceneSwapper.SetFinalScoreScene((Dictionary<string, int[]>) obj.CustomData);
             }
         }
     }
+
+    
     
 }

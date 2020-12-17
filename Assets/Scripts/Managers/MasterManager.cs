@@ -5,7 +5,6 @@ using UnityEngine;
 using Photon.Pun;
 using ExitGames.Client.Photon;
 using Photon.Realtime;
-using UnityEngine.SceneManagement;
 
 [CreateAssetMenu(menuName = "Singletons/MasterManager")]
 public class MasterManager : SingletonScriptableObject<MasterManager>
@@ -17,6 +16,8 @@ public class MasterManager : SingletonScriptableObject<MasterManager>
             return Instance._gameSettings;
         }
     }
+
+    public static PermanentSceneSwapper sceneSwapper;
 
     //Online events
     public static byte SCORE_UPDATE = 0;
@@ -33,11 +34,24 @@ public class MasterManager : SingletonScriptableObject<MasterManager>
         Color.cyan
     };
 
-    public static Color GetColorOfPlayer(Player player)
+    public static int GetColorIndexOfPlayer(Player player)
     {
         if(player.CustomProperties.ContainsKey("Color")){
-            int colorIndex = (int) PhotonNetwork.LocalPlayer.CustomProperties["Color"];
-            return MasterManager.getColorByIndex(colorIndex);
+            return (int) PhotonNetwork.LocalPlayer.CustomProperties["Color"];
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    public static Color GetColorOfPlayer(Player player)
+    {
+        int index = GetColorIndexOfPlayer(player);
+
+        if(isColorIndexValid(index))
+        {
+            return MasterManager.getColorByIndex(index);
         }
         else
         {
@@ -90,11 +104,5 @@ public class MasterManager : SingletonScriptableObject<MasterManager>
         {
             return index + 1;
         }
-    }
-
-    public static void SetFinalScoreScene(Dictionary<string, Vector2> data)
-    {
-        SceneManager.LoadScene(2);
-        Debug.Log("Sigue haciendo!!!");
     }
 }

@@ -10,63 +10,66 @@ using System.Linq;
 public class ScoreMethods : MonoBehaviour
 {
     [SerializeField]
+    private int FINAL_SCORE = 2;
+    [SerializeField]
     private Transform _scoresPanelList;
     [SerializeField]
     private ScoreListing _scoreListing;
-    private Dictionary<string, ScoreListing> _listings = new Dictionary<string, ScoreListing>();
+    private Dictionary<int, ScoreListing> _listings = new Dictionary<int, ScoreListing>();
     //They have to be primitive since they are going to be sent
-    private Dictionary<string, int> _scoreBoard = new Dictionary<string, int>();
-    private Dictionary<string, DragAndShoot> _playerBalls = new Dictionary<string, DragAndShoot>();
-    
+    private Dictionary<int, int> _scoreBoard = new Dictionary<int, int>();
+    private Dictionary<int, DragAndShoot> _playerBalls = new Dictionary<int, DragAndShoot>();
+
     public void AddScoreListing(Player player)
     {
-        ScoreListing listing = Instantiate (_scoreListing, _scoresPanelList);
-        if(listing != null)
+        ScoreListing listing = Instantiate(_scoreListing, _scoresPanelList);
+        if (listing != null)
         {
             listing.SetInitialInfo(player);
-            _scoreBoard.Add(player.NickName, 0); 
-            _listings.Add(player.NickName, listing);
+            _scoreBoard.Add(player.ActorNumber, 0);
+            _listings.Add(player.ActorNumber, listing);
         }
     }
-    public void ScorePanelUpdate(Dictionary<string, int> scores){
-        foreach (KeyValuePair<string, int> row in scores)
-        {   
+    public void ScorePanelUpdate(Dictionary<int, int> scores)
+    {
+        foreach (KeyValuePair<int, int> row in scores)
+        {
             _listings[row.Key].SetScore(row.Value);
         }
     }
 
     public void AddPlayerBallToList(PhotonView view)
     {
-        string nickname = view.Owner.NickName;
+        int id = view.Owner.ActorNumber;
         DragAndShoot script = view.gameObject.GetComponent<DragAndShoot>();
-        _playerBalls.Add(nickname, script);
+        _playerBalls.Add(id, script);
     }
 
     public void SendScoreToMaster()
     {
         //Send I scored to master
         PhotonNetwork.RaiseEvent(
-            MasterManager.SCORE_UPDATE, 
-            PhotonNetwork.LocalPlayer.NickName, 
+            MasterManager.SCORE_UPDATE,
+            PhotonNetwork.LocalPlayer.ActorNumber,
             RaiseEventOptions.Default,
             SendOptions.SendReliable
         );
     }
-    
-    public void AddScore(string nickname)
+
+    public void AddScore(int id)
     {
         //ONLY MASTER
-        
-        //Get score of nickname and update it
-        int score = _scoreBoard[nickname] + 1;
-        _scoreBoard[nickname] = score;
 
-        if(score < 10)
+        //Get score of player and update it
+        int score = _scoreBoard[id] + 1;
+        _scoreBoard[id] = score;
+
+        if (score < FINAL_SCORE)
         {
             //Send scores to all players
             PhotonNetwork.RaiseEvent(
-                MasterManager.SCORE_NORMALIZATION, 
-                _scoreBoard, 
+                MasterManager.SCORE_NORMALIZATION,
+                _scoreBoard,
                 RaiseEventOptions.Default,
                 SendOptions.SendReliable
             );
@@ -80,28 +83,32 @@ public class ScoreMethods : MonoBehaviour
             var sortedScoreBoard = _scoreBoard.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
             _scoreBoard = sortedScoreBoard.ToDictionary(pair => pair.Key, pair => pair.Value);
 
-            Dictionary<string, Vector2> finalData = new Dictionary<string, Vector2>();
-            foreach(var item in _scoreBoard)
+            Dictionary<string, int[]> finalData = new Dictionary<string, int[]>();
+            foreach (var item in _scoreBoard)
             {
-                string nick = item.Key;
+                int player_id = item.Key;
+                Player player = PhotonNetwork.LocalPlayer.Get(player_id);
 
                 //Get throws and score of each player and make Vector2
-                int thr = _playerBalls[nick].throws;
+                int col = MasterManager.GetColorIndexOfPlayer(player);
+                int thr = _playerBalls[player_id].throws;
                 int scr = item.Value;
-                finalData[nick] = new Vector2 (thr, scr);
+                finalData[player.NickName] = new int[] { col, thr, scr };
             }
 
             Debug.Log("SENDING SCORE FINALIZATION " + finalData.ToString());
             PhotonNetwork.RaiseEvent(
-                MasterManager.SCORE_REACHED, 
-                finalData, 
+                MasterManager.SCORE_REACHED,
+                finalData,
                 RaiseEventOptions.Default,
                 SendOptions.SendReliable
             );
 
-            MasterManager.SetFinalScoreScene(finalData);
+            MasterManager.sceneSwapper.SetFinalScoreScene(finalData);
         }
     }
 
     
+
+
 }

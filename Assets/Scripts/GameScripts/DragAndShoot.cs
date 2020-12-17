@@ -90,7 +90,6 @@ public class DragAndShoot : MonoBehaviour
     {
         //If my ball, let shoot it
         if(PV.IsMine){
-            //GameObject.Find("ScoreCanvas").GetComponent<ScoreEvents>().AddScore(PhotonNetwork.LocalPlayer.NickName);
             //If is already shoot, don´t shoot again
             if(posFixer.IsShoot)
                 return;

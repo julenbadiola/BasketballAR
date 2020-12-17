@@ -11,12 +11,12 @@ public class ScoreArea : MonoBehaviour
 {
     public ParticleSystem winEffect;
 
-    private string _localNickname;
     private Color _localPlayerColor;
     [SerializeField]
     private TextMeshProUGUI alert;
     [SerializeField]
     private OnlineEvents _onlineEvents;
+    
     void Start(){
         _localPlayerColor = MasterManager.GetColorOfPlayer(PhotonNetwork.LocalPlayer);
     }

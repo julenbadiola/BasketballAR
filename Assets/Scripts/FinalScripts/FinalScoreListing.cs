@@ -17,10 +17,10 @@ public class FinalScoreListing : MonoBehaviourPunCallbacks
     [SerializeField]
     private Image _color;
 
-    public void SetData(string nickname, Vector2 data){
+    public void SetData(string nickname, int color, int throws, int score){
         _player.text = nickname;
-        //_color.color = MasterManager.GetColorOfPlayer(nickname);
-        _throws.text = data[0].ToString();
-        _score.text = data[1].ToString();
+        _color.color = MasterManager.getColorByIndex(color);
+        _throws.text = throws.ToString();
+        _score.text = score.ToString();
     }
 }
