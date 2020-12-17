@@ -18,8 +18,7 @@ public class ScoreMethods : MonoBehaviour
     private Dictionary<int, ScoreListing> _listings = new Dictionary<int, ScoreListing>();
     //They have to be primitive since they are going to be sent
     private Dictionary<int, int> _scoreBoard = new Dictionary<int, int>();
-    private Dictionary<int, DragAndShoot> _playerBalls = new Dictionary<int, DragAndShoot>();
-
+    private Dictionary<int, int> _throwsBoard = new Dictionary<int, int>();
     public void AddScoreListing(Player player)
     {
         ScoreListing listing = Instantiate(_scoreListing, _scoresPanelList);
@@ -27,6 +26,7 @@ public class ScoreMethods : MonoBehaviour
         {
             listing.SetInitialInfo(player);
             _scoreBoard.Add(player.ActorNumber, 0);
+            _throwsBoard.Add(player.ActorNumber, 0);
             _listings.Add(player.ActorNumber, listing);
         }
     }
@@ -38,22 +38,10 @@ public class ScoreMethods : MonoBehaviour
         }
     }
 
-    public void AddPlayerBallToList(PhotonView view)
+    public void AddThrow(int id)
     {
-        int id = view.Owner.ActorNumber;
-        DragAndShoot script = view.gameObject.GetComponent<DragAndShoot>();
-        _playerBalls.Add(id, script);
-    }
-
-    public void SendScoreToMaster()
-    {
-        //Send I scored to master
-        PhotonNetwork.RaiseEvent(
-            MasterManager.SCORE_UPDATE,
-            PhotonNetwork.LocalPlayer.ActorNumber,
-            RaiseEventOptions.Default,
-            SendOptions.SendReliable
-        );
+        int throws = _throwsBoard[id] + 1;
+        _throwsBoard[id] = throws;
     }
 
     public void AddScore(int id)
@@ -79,36 +67,44 @@ public class ScoreMethods : MonoBehaviour
         //If someone reaches 10, send data and quitRoom
         else
         {
-            //Sort by score
-            var sortedScoreBoard = _scoreBoard.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
-            _scoreBoard = sortedScoreBoard.ToDictionary(pair => pair.Key, pair => pair.Value);
-
-            Dictionary<string, int[]> finalData = new Dictionary<string, int[]>();
-            foreach (var item in _scoreBoard)
-            {
-                int player_id = item.Key;
-                Player player = PhotonNetwork.LocalPlayer.Get(player_id);
-
-                //Get throws and score of each player and make Vector2
-                int col = MasterManager.GetColorIndexOfPlayer(player);
-                int thr = _playerBalls[player_id].throws;
-                int scr = item.Value;
-                finalData[player.NickName] = new int[] { col, thr, scr };
-            }
-
-            Debug.Log("SENDING SCORE FINALIZATION " + finalData.ToString());
-            PhotonNetwork.RaiseEvent(
-                MasterManager.SCORE_REACHED,
-                finalData,
-                RaiseEventOptions.Default,
-                SendOptions.SendReliable
-            );
-
-            MasterManager.sceneSwapper.SetFinalScoreScene(finalData);
+            ProcessFinalResults();
         }
     }
 
-    
+    private void ProcessFinalResults()
+    {
+        Dictionary<string, int[]> finalData = new Dictionary<string, int[]>();
+        //Get players in room
+        foreach (KeyValuePair<int, Photon.Realtime.Player> row in PhotonNetwork.CurrentRoom.Players)
+        {
+            Player player = row.Value;
+
+            //index 0
+            int col = MasterManager.GetColorIndexOfPlayer(player);
+            //index 1
+            int thr = _throwsBoard[player.ActorNumber];
+            //index 2
+            int scr = _scoreBoard[player.ActorNumber];
+
+            Debug.Log("BEFORE SENDING " + player.NickName + " " + col + " " + thr + " " + scr);
+            finalData[player.NickName] = new int[] { col, thr, scr };
+        }
+        //Sort by score
+        var sortedDict = finalData.OrderBy(x => x.Value[2]).ToDictionary(x => x.Key, x => x.Value).ToDictionary(pair => pair.Key, pair => pair.Value);
+
+        Debug.Log("SENDING SCORE FINALIZATION");
+
+        PhotonNetwork.RaiseEvent(
+            MasterManager.SCORE_REACHED,
+            sortedDict,
+            RaiseEventOptions.Default,
+            SendOptions.SendReliable
+        );
+
+        MasterManager.sceneSwapper.SetFinalScoreScene(sortedDict);
+    }
+
+
 
 
 }

@@ -20,49 +20,33 @@ public class DragAndShoot : MonoBehaviour
     private float forceMultiplier = 60000f;
     public Color color;
     private PhotonView PV;
-    private ScoreMethods _scoreMethods;
-    public int throws = 0;
+    private OnlineEvents _onlineEvents;
     void Start()
     {
-        _scoreMethods = GameObject.Find("ScoreCanvas").GetComponent<ScoreMethods>();
-        transform.SetParent (GameObject.Find("ImageTarget").transform, true);
-        
+        _onlineEvents = GameObject.Find("ScoreCanvas").GetComponent<OnlineEvents>();
+        transform.SetParent(GameObject.Find("ImageTarget").transform, true);
+
         rb = GetComponent<Rigidbody>();
         ResetBall();
-        
+
         PV = GetComponent<PhotonView>();
         color = MasterManager.GetColorOfPlayer(PV.Owner);
 
-        if(PV.IsMine)
+        if (PV.IsMine)
         {
-            NotifyThisBallToMaster();
             MyBall();
-        }
-        else{
-            OponentBall();
-        }
-    }
-    private void NotifyThisBallToMaster()
-    {
-        if(PhotonNetwork.IsMasterClient)
-        {
-            _scoreMethods.AddPlayerBallToList(PV);
         }
         else
         {
-            PhotonNetwork.RaiseEvent(
-                MasterManager.PLAYER_INSTANTIATION, 
-                PV.ViewID, 
-                RaiseEventOptions.Default,
-                SendOptions.SendReliable
-            );
+            OponentBall();
         }
     }
 
-    private void OponentBall(){
+    private void OponentBall()
+    {
         Debug.Log("OPONENT BALL");
         transform.gameObject.tag = "OponentBall";
-        
+
     }
     private void MyBall()
     {
@@ -71,7 +55,7 @@ public class DragAndShoot : MonoBehaviour
 
         //If is my ball, put in front of camera
         posFixer = gameObject.AddComponent<BallPositionFixer>();
-        transform.gameObject.tag = "Ball";        
+        transform.gameObject.tag = "Ball";
     }
 
     private void OnMouseDown()
@@ -83,19 +67,20 @@ public class DragAndShoot : MonoBehaviour
     {
         Debug.Log("UP");
         mouseReleasePos = Input.mousePosition;
-        Shoot(mouseReleasePos-mousePressDownPos);
+        Shoot(mouseReleasePos - mousePressDownPos);
     }
 
     void Shoot(Vector3 Force)
     {
         //If my ball, let shoot it
-        if(PV.IsMine){
+        if (PV.IsMine)
+        {
             //If is already shoot, don´t shoot again
-            if(posFixer.IsShoot)
+            if (posFixer.IsShoot)
                 return;
 
             Force.Normalize();
-            
+
             Vector3 force = Force * (forceMultiplier / 2) + (cam.forward * forceMultiplier);
             rb.useGravity = true;
             rb.AddForce(force);
@@ -109,20 +94,20 @@ public class DragAndShoot : MonoBehaviour
 
     }
 
-    private void ResetBall(){
+    private void ResetBall()
+    {
         rb.useGravity = false;
         rb.velocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero; 
+        rb.angularVelocity = Vector3.zero;
     }
 
     private IEnumerator resetBallAfterThrow()
     {
-        //Adds a throw to our player object
-        throws += 1;
+        _onlineEvents.AddThrow();
         //Wait 3 seconds (1.5 bc timeScale = 2) after throw and create new ball
         yield return new WaitForSeconds(3);
         ResetBall();
         posFixer.IsShoot = false;
     }
-    
+
 }

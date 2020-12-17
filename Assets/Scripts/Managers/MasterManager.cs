@@ -23,8 +23,17 @@ public class MasterManager : SingletonScriptableObject<MasterManager>
     public static byte SCORE_UPDATE = 0;
     public static byte SCORE_NORMALIZATION = 1;
     public static byte SCORE_REACHED = 2;
-    public static byte PLAYER_INSTANTIATION = 3;
+    public static byte BALL_THROW = 3;
 
+    public static void SendNotificationToMaster(byte reason)
+    {
+        PhotonNetwork.RaiseEvent(
+            reason,
+            PhotonNetwork.LocalPlayer.ActorNumber,
+            RaiseEventOptions.Default,
+            SendOptions.SendReliable
+        );
+    }
     private static List<Color> colorList = new List<Color>()
     {
         Color.red,
@@ -37,7 +46,7 @@ public class MasterManager : SingletonScriptableObject<MasterManager>
     public static int GetColorIndexOfPlayer(Player player)
     {
         if(player.CustomProperties.ContainsKey("Color")){
-            return (int) PhotonNetwork.LocalPlayer.CustomProperties["Color"];
+            return (int) player.CustomProperties["Color"];
         }
         else
         {

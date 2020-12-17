@@ -43,29 +43,36 @@ public class OnlineEvents : MonoBehaviourPun
         }
         else
         {
-            _scoreMethods.SendScoreToMaster();
+            MasterManager.SendNotificationToMaster(MasterManager.SCORE_UPDATE);
         }
     }
+
+    public void AddThrow()
+    {
+        if(isMaster)
+        {
+            _scoreMethods.AddThrow(PhotonNetwork.LocalPlayer.ActorNumber);
+        }
+        else
+        {
+            MasterManager.SendNotificationToMaster(MasterManager.BALL_THROW);
+        }
+    }
+
     private void NetworkingClient_EventReceived(EventData obj)
     {
-        if(obj.Code == MasterManager.PLAYER_INSTANTIATION)
-        {   
+        Player sender = PhotonNetwork.CurrentRoom.GetPlayer(obj.Sender);
+
+        if(obj.Code == MasterManager.BALL_THROW)
+        {
             if(isMaster)
             {
-                int viewId = (int) obj.CustomData;
-                PhotonView view = PhotonView.Find(viewId);
-
-                if (view != null )
-                {
-                    _scoreMethods.AddPlayerBallToList(view);
-                    Debug.Log("ADDED BALL " + view.gameObject.ToString());
-                }
-                else
-                {
-                    Debug.LogError("No object found with viewid " + viewId);
-                }
+                //Add throw to the id of thrower
+                _scoreMethods.AddThrow((int) obj.CustomData);
             }
+            Debug.Log("Throw de " + sender.NickName);
         }
+
         if(obj.Code == MasterManager.SCORE_UPDATE)
         {
             if(isMaster)
@@ -74,11 +81,10 @@ public class OnlineEvents : MonoBehaviourPun
                 _scoreMethods.AddScore((int) obj.CustomData);
             }
             
-            Player sender = PhotonNetwork.CurrentRoom.GetPlayer(obj.Sender);
             Color color = MasterManager.GetColorOfPlayer(sender);
-            Debug.Log("Canasta de " + sender.NickName + " - Color: " + color);
+            Debug.Log("Canasta de " + sender.NickName);
             _scoreArea.playWinEffect(color);
-        }
+        }        
 
         if(obj.Code == MasterManager.SCORE_NORMALIZATION)
         {   
