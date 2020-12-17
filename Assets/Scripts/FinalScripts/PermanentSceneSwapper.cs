@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+using Photon.Realtime;
+using Photon.Pun;
+
 public class PermanentSceneSwapper : MonoBehaviour
 {
     void Awake()
@@ -19,10 +22,10 @@ public class PermanentSceneSwapper : MonoBehaviour
     }
     public void SetFinalScoreScene(Dictionary<string, int[]> data)
     {
-        StartCoroutine(LoadScene(data));
+        StartCoroutine(LoadFinalScene(data));
     }
 
-    private IEnumerator LoadScene(Dictionary<string, int[]> data)
+    private IEnumerator LoadFinalScene(Dictionary<string, int[]> data)
     {
         // Start loading the scene
         AsyncOperation asyncLoadLevel = SceneManager.LoadSceneAsync(2, LoadSceneMode.Single);
@@ -34,5 +37,11 @@ public class PermanentSceneSwapper : MonoBehaviour
 
         Debug.Log("Sigue haciendo!!!");
         GameObject.Find("FinalScoreCanvas").GetComponent<FinalScoreScene>().SetFinalResults(data);
+    }
+
+    public void ReturnRoomsScene()
+    {
+        PhotonNetwork.LeaveRoom(true);
+        SceneManager.LoadScene(0);
     }
 }

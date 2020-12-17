@@ -46,9 +46,8 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
         while (true)
         {
             bool res = checkReadyPlayers();
-            //print("CHECKING " + res);
             startButton.GetComponent<Button>().interactable = res;
-            yield return new WaitForSeconds(3);
+            yield return new WaitForSeconds(1);
         }
     }
 
