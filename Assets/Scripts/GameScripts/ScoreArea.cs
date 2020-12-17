@@ -5,19 +5,20 @@ using ExitGames.Client.Photon;
 using Photon.Realtime;
 using Photon.Pun;
 using TMPro;
+using System.Linq;
+
 public class ScoreArea : MonoBehaviour
 {
     public ParticleSystem winEffect;
 
     private string _localNickname;
     private Color _localPlayerColor;
-    private ScoreEvents _scoreboard;
     [SerializeField]
     private TextMeshProUGUI alert;
+    [SerializeField]
+    private OnlineEvents _onlineEvents;
     void Start(){
-        _localNickname = PhotonNetwork.LocalPlayer.NickName;
         _localPlayerColor = MasterManager.GetColorOfPlayer(PhotonNetwork.LocalPlayer);
-        _scoreboard = GameObject.Find("ScoreCanvas").GetComponent<ScoreEvents>();
     }
     
     private void OnTriggerEnter(Collider coll){
@@ -25,15 +26,9 @@ public class ScoreArea : MonoBehaviour
         if(coll.CompareTag("Ball"))
         {
             //StartCoroutine(ShowAlert());
-            _scoreboard.AddScore(_localNickname);
-            playWinEffect(coll.gameObject.GetComponent<DragAndShoot>().color);
+            _onlineEvents.AddScore();
+            playWinEffect(_localPlayerColor);
         }
-    }
-
-    IEnumerator ShowAlert(){
-        alert.gameObject.SetActive(true);
-        yield return new WaitForSeconds(2f);
-        alert.gameObject.SetActive(false);
     }
 
     public void playWinEffect(Color color)
@@ -42,4 +37,11 @@ public class ScoreArea : MonoBehaviour
         winEffect.startColor = color;
         winEffect.Play();
     }
+
+    /*
+    IEnumerator ShowAlert(){
+        alert.gameObject.SetActive(true);
+        yield return new WaitForSeconds(2f);
+        alert.gameObject.SetActive(false);
+    }*/
 }

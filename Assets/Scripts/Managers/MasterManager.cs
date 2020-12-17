@@ -5,6 +5,7 @@ using UnityEngine;
 using Photon.Pun;
 using ExitGames.Client.Photon;
 using Photon.Realtime;
+using UnityEngine.SceneManagement;
 
 [CreateAssetMenu(menuName = "Singletons/MasterManager")]
 public class MasterManager : SingletonScriptableObject<MasterManager>
@@ -18,9 +19,10 @@ public class MasterManager : SingletonScriptableObject<MasterManager>
     }
 
     //Online events
-    public static byte BALL_THROW_EVENT = 0;
-    public static byte SCORE_UPDATE = 1;
-    public static byte SCORE_NORMALIZATION = 2;
+    public static byte SCORE_UPDATE = 0;
+    public static byte SCORE_NORMALIZATION = 1;
+    public static byte SCORE_REACHED = 2;
+    public static byte PLAYER_INSTANTIATION = 3;
 
     private static List<Color> colorList = new List<Color>()
     {
@@ -88,5 +90,11 @@ public class MasterManager : SingletonScriptableObject<MasterManager>
         {
             return index + 1;
         }
+    }
+
+    public static void SetFinalScoreScene(Dictionary<string, Vector2> data)
+    {
+        SceneManager.LoadScene(2);
+        Debug.Log("Sigue haciendo!!!");
     }
 }

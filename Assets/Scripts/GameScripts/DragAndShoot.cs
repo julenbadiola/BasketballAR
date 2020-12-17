@@ -9,7 +9,6 @@ using Photon.Pun;
 [RequireComponent(typeof(Rigidbody))]
 public class DragAndShoot : MonoBehaviour
 {
-    private BallControl main;
     private Transform cam;
     private Rigidbody rb;
     private BallPositionFixer posFixer;
@@ -21,9 +20,11 @@ public class DragAndShoot : MonoBehaviour
     private float forceMultiplier = 60000f;
     public Color color;
     private PhotonView PV;
-
+    private ScoreMethods _scoreMethods;
+    public int throws = 0;
     void Start()
     {
+        _scoreMethods = GameObject.Find("ScoreCanvas").GetComponent<ScoreMethods>();
         transform.SetParent (GameObject.Find("ImageTarget").transform, true);
         
         rb = GetComponent<Rigidbody>();
@@ -34,12 +35,30 @@ public class DragAndShoot : MonoBehaviour
 
         if(PV.IsMine)
         {
+            NotifyThisBallToMaster();
             MyBall();
         }
         else{
             OponentBall();
         }
     }
+    private void NotifyThisBallToMaster()
+    {
+        if(PhotonNetwork.IsMasterClient)
+        {
+            _scoreMethods.AddPlayerBallToList(PV);
+        }
+        else
+        {
+            PhotonNetwork.RaiseEvent(
+                MasterManager.PLAYER_INSTANTIATION, 
+                PV.ViewID, 
+                RaiseEventOptions.Default,
+                SendOptions.SendReliable
+            );
+        }
+    }
+
     private void OponentBall(){
         Debug.Log("OPONENT BALL");
         transform.gameObject.tag = "OponentBall";
@@ -48,7 +67,6 @@ public class DragAndShoot : MonoBehaviour
     private void MyBall()
     {
         Debug.Log("MY BALL");
-        main = GameObject.Find("main").GetComponent<BallControl>();
         cam = GameObject.Find("ARCamera").transform;
 
         //If is my ball, put in front of camera
@@ -100,6 +118,8 @@ public class DragAndShoot : MonoBehaviour
 
     private IEnumerator resetBallAfterThrow()
     {
+        //Adds a throw to our player object
+        throws += 1;
         //Wait 3 seconds (1.5 bc timeScale = 2) after throw and create new ball
         yield return new WaitForSeconds(3);
         ResetBall();
