@@ -108,6 +108,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _text: {fileID: 583527927415786393}
   _color: {fileID: 2385238973804308410}
+  _icon: {fileID: 9202330868569320937}
+  notReadyIcon: {fileID: 2800000, guid: 18c1939aebfa2467680b447dcaf7f69a, type: 3}
+  readyIcon: {fileID: 2800000, guid: 5436bfe5f5ec24a75adb615aa925c76a, type: 3}
   Ready: 0
 --- !u!1 &583527927415786399
 GameObject:
@@ -143,8 +146,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 107.49991, y: 0}
-  m_SizeDelta: {x: 717.8, y: 100}
+  m_AnchoredPosition: {x: -109.4, y: 0}
+  m_SizeDelta: {x: 707.2, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &583527927415786394
 CanvasRenderer:
@@ -238,7 +241,7 @@ MonoBehaviour:
   m_firstVisibleCharacter: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 10, y: 10, z: 226.89069, w: 10}
+  m_margin: {x: 10, y: 10, z: 17.769928, w: 10}
   m_textInfo:
     textComponent: {fileID: 583527927415786393}
     characterCount: 8

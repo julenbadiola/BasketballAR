@@ -18,11 +18,18 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
     private PlayerListing _playerListing;
     [SerializeField]
     private TMP_Text _readyUpText;
+    [SerializeField]
+    private RawImage _icon;
+    [SerializeField]
+    private Texture notReadyIcon;
+    [SerializeField]
+    private Texture readyIcon;
 
     private List<PlayerListing> _listings = new List<PlayerListing>();
     private RoomsCanvases _roomsCanvases;
     private bool _ready = false;
-
+    [SerializeField]
+    private int WAIT_TO_REFRESH_PLAYERS_STATUS = 1;
     private void Awake()
     {
         GetCurrentRoomPlayers();
@@ -31,38 +38,52 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
     public override void OnEnable()
     {
         base.OnEnable();
-        if(!PhotonNetwork.IsMasterClient)
+        bool isMaster = PhotonNetwork.IsMasterClient;
+        if (!isMaster)
         {
             startButton.SetActive(false);
             readyButton.SetActive(true);
-        }else{
-            readyButton.SetActive(false);
-            StartCoroutine(checkPlayers());
         }
+        else
+        {
+            readyButton.SetActive(false);
+        }
+        
         SetReadyUp(false);
+        StartCoroutine(checkPlayers());
     }
-    
-    IEnumerator checkPlayers(){
+
+    IEnumerator checkPlayers()
+    {
         while (true)
         {
             bool res = checkReadyPlayers();
             startButton.GetComponent<Button>().interactable = res;
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(WAIT_TO_REFRESH_PLAYERS_STATUS);
         }
     }
 
     private void SetReadyUp(bool state)
     {
         _ready = state;
-        if(state)
+        string hex = "";
+        if (state)
         {
-            _readyUpText.text = "¡Estoy listo!";
-            _readyUpText.color = Color.green;
-        }else{
-            _readyUpText.text = "No estoy listo";
-            _readyUpText.color = Color.red;
+            _readyUpText.text = "¡ESTOY LISTO!";
+            _icon.texture = readyIcon;
+            hex = "D4FFAC";
         }
-        
+        else
+        {
+            _readyUpText.text = "NO ESTOY LISTO";
+            _icon.texture = notReadyIcon;
+            hex = "FF7C83";
+            
+        }
+        /*Color color;
+        ColorUtility.TryParseHtmlString (hex, out color);
+        _readyUpText.transform.parent.gameObject.GetComponent<Image>().color = color;
+        */
     }
 
     public void FirstInitialize(RoomsCanvases canvases)
@@ -72,10 +93,12 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
 
     private void GetCurrentRoomPlayers()
     {
-        if(!PhotonNetwork.IsConnected){
+        if (!PhotonNetwork.IsConnected)
+        {
             return;
         }
-        if(PhotonNetwork.CurrentRoom == null || PhotonNetwork.CurrentRoom.Players == null){
+        if (PhotonNetwork.CurrentRoom == null || PhotonNetwork.CurrentRoom.Players == null)
+        {
             return;
         }
         foreach (KeyValuePair<int, Player> playerInfo in PhotonNetwork.CurrentRoom.Players)
@@ -84,14 +107,15 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
         }
     }
 
-    public override void OnLeftRoom(){
+    public override void OnLeftRoom()
+    {
         _content.DestroyChildren();
     }
 
     private void AddPlayerListing(Player player)
     {
-        PlayerListing listing = Instantiate (_playerListing, _content);
-        if(listing != null)
+        PlayerListing listing = Instantiate(_playerListing, _content);
+        if (listing != null)
         {
             listing.SetPlayerInfo(player);
             _listings.Add(listing);
@@ -105,8 +129,9 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        int index = _listings.FindIndex( x => x.Player == otherPlayer);
-        if(index != -1){
+        int index = _listings.FindIndex(x => x.Player == otherPlayer);
+        if (index != -1)
+        {
             Destroy(_listings[index].gameObject);
             _listings.RemoveAt(index);
         }
@@ -116,26 +141,30 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
     {
         _roomsCanvases.CurrentRoomCanvas.LeaveRoomMenu.OnClick_LeaveRoom();
     }
-    public bool checkReadyPlayers(){
+    public bool checkReadyPlayers()
+    {
         bool allReady = true;
         for (int i = 0; i < _listings.Count; i++)
+        {
+            _listings[i].UpdateIcon();
+            if (_listings[i].Player != PhotonNetwork.LocalPlayer)
             {
-                if(_listings[i].Player != PhotonNetwork.LocalPlayer)
+                if (!_listings[i].Ready)
                 {
-                    if(!_listings[i].Ready)
-                    {
-                        allReady = false;
-                    }
+                    allReady = false;
                 }
             }
+        }
         return allReady;
     }
 
-    public void OnClick_StartGame(){
+    public void OnClick_StartGame()
+    {
         //Sólo el creador puede iniciar la partida
-        if(PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.IsMasterClient)
         {
-            if(checkReadyPlayers()){
+            if (checkReadyPlayers())
+            {
                 PhotonNetwork.CurrentRoom.IsOpen = false;
                 PhotonNetwork.CurrentRoom.IsVisible = false;
                 PhotonNetwork.LoadLevel(1);
@@ -145,11 +174,13 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
 
     public void OnClick_ReadyUp()
     {
-        if(PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("Color")){
-            int res = (int) PhotonNetwork.LocalPlayer.CustomProperties["Color"];
-            if (MasterManager.isColorIndexValid(res)){
-                
-                if(!PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("Color"))
+        {
+            int res = (int)PhotonNetwork.LocalPlayer.CustomProperties["Color"];
+            if (MasterManager.isColorIndexValid(res))
+            {
+
+                if (!PhotonNetwork.IsMasterClient)
                 {
                     SetReadyUp(!_ready);
                     base.photonView.RPC("RPC_ChangeReadyState", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer, _ready);
@@ -159,13 +190,13 @@ public class PlayerListingMenu : MonoBehaviourPunCallbacks
 
             }
         }
-        
+
     }
     [PunRPC]
     private void RPC_ChangeReadyState(Player player, bool ready)
     {
-        int index = _listings.FindIndex( x => x.Player == player);
-        if(index != -1)
+        int index = _listings.FindIndex(x => x.Player == player);
+        if (index != -1)
         {
             _listings[index].Ready = ready;
         }
