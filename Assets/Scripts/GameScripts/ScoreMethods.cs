@@ -10,8 +10,6 @@ using System.Linq;
 public class ScoreMethods : MonoBehaviour
 {
     [SerializeField]
-    private int FINAL_SCORE = 2;
-    [SerializeField]
     private Transform _scoresPanelList;
     [SerializeField]
     private ScoreListing _scoreListing;
@@ -52,7 +50,7 @@ public class ScoreMethods : MonoBehaviour
         int score = _scoreBoard[id] + 1;
         _scoreBoard[id] = score;
 
-        if (score < FINAL_SCORE)
+        if (score < MasterManager.GameSettings.final_score)
         {
             //Send scores to all players
             PhotonNetwork.RaiseEvent(

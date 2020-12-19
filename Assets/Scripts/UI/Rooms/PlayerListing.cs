@@ -31,7 +31,7 @@ public class PlayerListing : MonoBehaviourPunCallbacks
 
     public void UpdateIcon()
     {
-        if (Ready && (_icon.texture != readyIcon))
+        if (Player.IsMasterClient || (Ready && (_icon.texture != readyIcon)))
         {
             _icon.texture = readyIcon;
         }

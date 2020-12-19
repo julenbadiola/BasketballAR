@@ -8,7 +8,7 @@ public class GameSettings : SingletonScriptableObject<GameSettings>
     [SerializeField]
     private string _gameVersion = "0.0.0";
     public string GameVersion {get {return _gameVersion; } }
-
+    public int final_score = 10;
     [SerializeField]
     private string _nickName = "Hugo";
     public string NickName {
