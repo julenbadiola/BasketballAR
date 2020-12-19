@@ -34,9 +34,9 @@ public class FinalScoreScene : MonoBehaviourPunCallbacks
             StartCoroutine(checkPlayers());
         }
         
+        //Receives dict where key is the nickname of the player and value an int array with throws and score info
         foreach (var item in data)
         {
-            Debug.Log("FINAL RESULT: " + item.Key + " - " + string.Join(", ", item.Value.Select(i => i.ToString()).ToArray()));
             AddFinalScoreListing(item.Key, item.Value);
         }
     }
